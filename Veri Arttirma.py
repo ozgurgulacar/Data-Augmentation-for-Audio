@@ -1,5 +1,3 @@
-
-
 import soundfile as sf
 import librosa
 import numpy as np
@@ -7,47 +5,59 @@ import os
 
 
 
-def gurultu_ekle(ses_dosyasi,sayi):
-  ses, sr = librosa.load(r"Sesi Arttıralacak Dosyanın Yolu (Sadece Klasör yolu)"+ses_dosyasi)
-  gurultu = np.random.normal(0, 0.01, len(ses))
-  ses_gurultulu = ses + gurultu
-  yeniisim=""
-  if ses_dosyasi.endswith(".webm"):
-      yeniisim=ses_dosyasi[:-5]
+def noise_add(audio_file,sayi):
+  voice, sr = librosa.load(r"Path to the File to Increase the Volume (Only Folder Path)"+audio_file)
+  noise = np.random.normal(0, 0.01, len(voice))
+  voice_noisy = voice + noise
+  newname2=""
+  if audio_file.endswith(".webm"):
+      newname2=audio_file[:-5]
   else:
-      yeniisim=ses_dosyasi[:-4]
-  yeniisim="C:Kaydedilecek Dosya Yolu "+str(sayi)+".wav"
-  sf.write(yeniisim, ses_gurultulu, sr)
+      newname2=audio_file[:-4]
+      
+  #newname2="Save File Path "+str(sayi)+" "+newname+".wav"
+  #sf.write(newname2, voice_noisy, sr)
+  
+  newname="Save File Path "+str(sayi)+".wav"
+  sf.write(newname, voice_noisy, sr)
+  
 
 
-def zaman_carpitma(ses_dosyasi,sayi):
-  ses, sr = librosa.load(r"Sesi Arttıralacak Dosyanın Yolu (Sadece Klasör yolu)"+ses_dosyasi)
-  ses_hizli=librosa.effects.time_stretch(ses,rate=1.2)
-  ses_yavas=librosa.effects.time_stretch(ses,rate=0.8)
-  yeniisim=""
-  if ses_dosyasi.endswith(".webm"):
-      yeniisim=ses_dosyasi[:-5]
+def time_dilation(audio_file,sayi):
+  voice, sr = librosa.load(r"Path to the File to Increase the Volume (Only Folder Path)"+audio_file)
+  sound_fast=librosa.effects.time_stretch(voice,rate=1.2)
+  sound_slow=librosa.effects.time_stretch(voice,rate=0.8)
+  
+  newname2=""
+  if audio_file.endswith(".webm"):
+      newname2=audio_file[:-5]
   else:
-      yeniisim=ses_dosyasi[:-4]
-  yeniisim="Kaydedilecek Dosya Yolu"+str(sayi)
-  sf.write(yeniisim+"ses_hizli.wav", ses_hizli, sr)
-  sf.write(yeniisim+"ses_yavas.wav", ses_yavas, sr)
+      newname2=audio_file[:-4]
+  
+  
+  #newname2="Save File Path "+str(sayi)+" "+newname2
+  #sf.write(newname2+"sound_fast.wav", sound_fast, sr)
+  #sf.write(newname2+"sound_slow.wav", sound_slow, sr)
+  
+  newname="Save File Path"+str(sayi)
+  sf.write(newname+" sound_fast.wav", sound_fast, sr)
+  sf.write(newname+" sound_slow.wav", sound_slow, sr)
   
 
         
 
-def klasor_gez_oksurukvar(dizin):
+def travers_all_folders(Directory):
     sayi=1
-    for a in os.listdir(dizin):
-        tam_yol = os.path.join(dizin, a)
-        if os.path.isdir(tam_yol):
-            klasor_gez_oksurukvar(tam_yol)
+    for item in os.listdir(Directory):
+        full_path = os.path.join(Directory, item )
+        if os.path.isdir(full_path):
+            travers_all_folders(full_path)
         else:
-            if a.endswith(".wav") or a.endswith(".webm"):
-                zaman_carpitma(tam_yol,sayi)
-                gurultu_ekle(tam_yol,sayi)
+            if item.endswith(".wav") or item.endswith(".webm"):
+                time_dilation(full_path,sayi)
+                noise_add(full_path,sayi)
                 sayi+=1
                 
         
 
-klasor_gez_oksurukvar(r"Seslerin bulunduğu Dosya")
+travers_all_folders(r"Audio files folder")
